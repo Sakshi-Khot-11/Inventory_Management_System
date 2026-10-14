@@ -1,0 +1,54 @@
+﻿@page "/edit-product/{ID:int}"
+@using Inventory_Management_System.Services
+@inject ProductServices productServices
+@using Inventory_Management_System.Models
+@inject NavigationManager navManager
+@rendermode InteractiveServer
+
+
+<h3>EditProduct</h3>
+@if (editProduct == null)
+{
+    <p>product not found</p>
+}
+else
+{
+    <EditForm Model="@editProduct" FormName="EditProductform" OnSubmit="UpdateProduct">
+        <div>
+            <label>Product Id</label>
+            <InputNumber @bind-Value="editProduct.ID"></InputNumber>
+        </div>
+
+        <div>
+            <label>Product Name</label>
+            <InputText @bind-Value="editProduct.Name"></InputText>
+        </div>
+
+        <div>
+            <label>Stock</label>
+            <InputNumber @bind-Value="editProduct.Stock"></InputNumber>
+        </div>
+
+        <div>
+            <label>Price</label>
+            <InputNumber @bind-Value="editProduct.Price"></InputNumber>
+        </div>
+
+        <button type="submit"> Save changes</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int ID { get; set; }
+    Product editProduct;
+
+    protected override void OnParametersSet()
+    {
+        editProduct = productServices.products.FirstOrDefault(predicate => predicate.ID == ID);
+    }
+    void UpdateProduct()
+    {
+        navManager.NavigateTo("/products");
+    }
+}

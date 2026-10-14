@@ -1,0 +1,13 @@
+﻿@page "/dashboard"
+@rendermode InteractiveServer
+<h3>Dashboard</h3>
+<button @onclick="ShowMessage">click me</button>
+<h3>@msg</h3>
+
+@code {
+    string msg = "";
+    public void ShowMessage()
+    {
+        msg = "Hello world!!!";
+    }
+}

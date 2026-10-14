@@ -1,0 +1,46 @@
+﻿@page "/add-product"
+@using Inventory_Management_System.Models
+@using Inventory_Management_System.Components.Pages
+@using Inventory_Management_System.Services
+@inject ProductServices productServices
+@inject NavigationManager navManager
+@rendermode InteractiveServer
+
+
+
+
+
+<h3>AddProduct</h3>
+
+<EditForm Model=@newProduct FormName="AddProductFrom" OnSubmit="@AddNewProduct">
+    <div>
+        <label>Product ID</label>
+        <InputNumber @bind-Value="newProduct.ID"/>
+    </div>
+    <div>
+        <label>Product Name</label>
+        <InputText @bind-Value="newProduct.Name"></InputText>
+    </div>
+    <div>
+        <label>Product stock</label>
+        <InputNumber @bind-Value="newProduct.Stock"></InputNumber>
+    </div>
+
+    <div>
+        <label>Product Price</label>
+        <InputNumber @bind-Value='newProduct.Price'></InputNumber>
+    </div>
+    <button >Add Product</button>
+</EditForm>
+
+@code {
+    Product newProduct = new Product();
+    public void AddNewProduct()
+    {
+        productServices.products.Add(newProduct);
+        newProduct = new Product();
+        navManager.NavigateTo("/products");
+    }
+    
+
+}

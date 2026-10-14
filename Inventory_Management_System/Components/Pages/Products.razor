@@ -1,0 +1,123 @@
+﻿@page "/products"
+@using Inventory_Management_System.Models
+@using Inventory_Management_System.Services
+@rendermode InteractiveServer
+@inject NavigationManager navmanager
+@inject ProductServices productServices
+@using System.Linq
+@using System.Collections.Generic
+
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Product</h3>
+
+    <div class="d-flex align-items-center gap-2">
+ untill step 6 
+    <label for="sortOption">Sort Products:</label>
+    <select id="sortOption" class="form-select" @bind="sortOption">
+    <option value="none">Default</option>
+        <option value="stockAsc">Stock:Low to high</option>
+        <option value="stockDesc">Stock:High to Low</option>
+        <option value="priceAsc">Price:Low to High</option>
+        <option value="priceDesc">Price:High to Low</option>
+    </select>
+    </div>
+</div>
+
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Stock</th>
+            <th>Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Product item in sortedProducts)
+        {
+            <tr @onclick="()=> SelectProduct(item)" style="cursor:pointer;background-color:@(SelectedProduct==item? "lightblue":"transparent")">
+                <td>@item.ID</td>
+                <td>@item.Name</td>
+                <td>@item.Stock</td>
+                <td>@item.Price</td>
+            </tr>
+
+
+        }
+    </tbody>
+</table>
+
+<button class="btn btn-primary" @onclick="AddProd">Add Product</button>
+<button class="btn btn-primary" @onclick="DeleteProd">Delete Product</button>
+<button class="btn btn-primary" @onclick="EditProd">Edit Product</button>
+<h1></h1>
+<p>@msg</p>
+
+@code {
+    Product SelectedProduct;
+    string msg = "";
+    string sortOption = "none";
+    void SelectProduct(Product item)
+    {
+        SelectedProduct = item;
+
+    }
+
+
+    public void AddProd()
+    {
+        navmanager.NavigateTo("/add-product");
+    }
+    public void DeleteProd()
+    {
+
+        if (SelectedProduct == null)
+        {
+            msg = "please select the product ";
+        }
+        else
+        {
+            productServices.products.Remove(SelectedProduct);
+            msg = "Product deleted successfully";
+            SelectedProduct = null;
+
+        }
+    }
+    public void EditProd()
+    {
+        if (SelectedProduct == null)
+        {
+            msg = "please select the product";
+        }
+        else
+        {
+
+            navmanager.NavigateTo($"/edit-product/{SelectedProduct.ID}");
+
+
+        }
+
+    }
+
+
+
+    IEnumerable<Product> sortedProducts
+    {
+        get
+        {
+            return sortOption switch
+            {
+                "stockAsc" => productServices.products.OrderBy(p => p.Stock),
+                "stockDesc"=>productServices.products.OrderByDescending(p=>p.Stock),
+                "priceAsc"=>productServices.products.OrderBy(p=>p.Price),
+                "priceDesc"=>productServices.products.OrderByDescending(p=>p.Price),
+                _=>productServices.products
+
+
+            };
+        }
+    }
+
+}
