@@ -4,6 +4,8 @@
 @using Inventory_Management_System.Models
 @inject NavigationManager navManager
 @rendermode InteractiveServer
+@inject IHttpClientFactory HttpClientFactory
+@using System.Net.Http.Json
 
 
 <h3>EditProduct</h3>
@@ -42,13 +44,30 @@ else
     [Parameter]
     public int ID { get; set; }
     Product editProduct;
-
+    string msg = "";
     protected override void OnParametersSet()
     {
-        editProduct = productServices.products.FirstOrDefault(predicate => predicate.ID == ID);
+        editProduct = productServices.products.FirstOrDefault(p => p.ID == ID);
     }
-    void UpdateProduct()
+  
+    private async Task UpdateProduct()
     {
-        navManager.NavigateTo("/products");
+        var client = HttpClientFactory.CreateClient("InventoryApi");
+        var response = await client.PutAsJsonAsync($"api/product/{ID}", editProduct);
+        if (response.IsSuccessStatusCode)
+        {
+            navManager.NavigateTo("/products");
+        }
+        else
+        {
+            msg = await response.Content.ReadAsStringAsync();
+        }
+
     }
+
+
+    // void UpdateProduct()
+    // {
+    //     navManager.NavigateTo("/products");
+    // }
 }

@@ -5,7 +5,8 @@
 @inject ProductServices productServices
 @inject NavigationManager navManager
 @rendermode InteractiveServer
-
+@inject IHttpClientFactory HttpClientFactory
+@using System.Net.Http.Json
 
 
 
@@ -31,16 +32,51 @@
         <InputNumber @bind-Value='newProduct.Price'></InputNumber>
     </div>
     <button >Add Product</button>
+    <button type="button" class="btn btn-secondary ms-2" @onclick="Cancel">
+        Cancel
+    </button>
+
 </EditForm>
+@if (!string.IsNullOrWhiteSpace(msg))
+{
+    <div class="alert alert-danger mt-3">
+        @msg
+    </div>
+}
 
 @code {
     Product newProduct = new Product();
-    public void AddNewProduct()
+    string msg = "";
+
+    private async Task AddNewProduct()
     {
-        productServices.products.Add(newProduct);
-        newProduct = new Product();
+        var client = HttpClientFactory.CreateClient("InventoryApi");
+        var response = await client.PostAsJsonAsync(
+            "api/product", newProduct);
+        if (response.IsSuccessStatusCode)
+        {
+            navManager.NavigateTo("/products");
+        }
+        else
+        {
+            msg = await response.Content.ReadAsStringAsync();
+        }
+
+    }
+
+
+
+
+    // public void AddNewProduct()
+    // {
+    //     productServices.products.Add(newProduct);
+    //     newProduct = new Product();
+    //     navManager.NavigateTo("/products");
+    // }
+    public void Cancel()
+    {
         navManager.NavigateTo("/products");
     }
-    
+
 
 }

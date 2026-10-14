@@ -7,8 +7,16 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.Services.AddScoped<ProductServices>();
+builder.Services.AddSingleton<ProductServices>();
 builder.Services.AddControllers();
+
+
+
+
+builder.Services.AddHttpClient("InventoryApi", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7258/");
+});
 
 var app = builder.Build();
 

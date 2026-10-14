@@ -1,18 +1,19 @@
 ﻿@page "/products"
 @using Inventory_Management_System.Models
-@using Inventory_Management_System.Services
+
 @rendermode InteractiveServer
 @inject NavigationManager navmanager
-@inject ProductServices productServices
+
 @using System.Linq
 @using System.Collections.Generic
+@inject IHttpClientFactory HttpClientFactory
+@using System.Net.Http.Json
 
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h3 class="mb-0">Product</h3>
 
     <div class="d-flex align-items-center gap-2">
- untill step 6 
     <label for="sortOption">Sort Products:</label>
     <select id="sortOption" class="form-select" @bind="sortOption">
     <option value="none">Default</option>
@@ -59,6 +60,19 @@
     Product SelectedProduct;
     string msg = "";
     string sortOption = "none";
+    private List<Product> products = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var client = HttpClientFactory.CreateClient("InventoryApi");
+
+        products = await client.GetFromJsonAsync<List<Product>>(
+            "api/product") ?? new List<Product>();
+    }
+
+
+
     void SelectProduct(Product item)
     {
         SelectedProduct = item;
@@ -70,8 +84,11 @@
     {
         navmanager.NavigateTo("/add-product");
     }
+
+
     public void DeleteProd()
     {
+        
 
         if (SelectedProduct == null)
         {
@@ -79,7 +96,7 @@
         }
         else
         {
-            productServices.products.Remove(SelectedProduct);
+            products.Remove(SelectedProduct);
             msg = "Product deleted successfully";
             SelectedProduct = null;
 
@@ -109,11 +126,11 @@
         {
             return sortOption switch
             {
-                "stockAsc" => productServices.products.OrderBy(p => p.Stock),
-                "stockDesc"=>productServices.products.OrderByDescending(p=>p.Stock),
-                "priceAsc"=>productServices.products.OrderBy(p=>p.Price),
-                "priceDesc"=>productServices.products.OrderByDescending(p=>p.Price),
-                _=>productServices.products
+                "stockAsc" => products.OrderBy(p => p.Stock),
+                "stockDesc"=>products.OrderByDescending(p=>p.Stock),
+                "priceAsc"=>products.OrderBy(p=>p.Price),
+                "priceDesc"=>products.OrderByDescending(p=>p.Price),
+                _=>products
 
 
             };
